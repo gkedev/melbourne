@@ -22,7 +22,8 @@ export const DEMO_CONFIG = {
     name: 'AAuth.dev Person Server',
   },
   accessServer: {
-    url: 'https://as.keycard.dev',
+    url: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud',
+    zoneId: 't55y1t1etlnq7ws9cgidzfxm2d',
     name: 'Keycard Access Server',
   },
   kyapay: {

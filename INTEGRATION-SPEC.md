@@ -137,6 +137,7 @@ AAUTH_PERSON_SERVER=https://person.hello.coop
 
 # Keycard
 KEYCARD_ZONE_ID=t55y1t1etlnq7ws9cgidzfxm2d
+KEYCARD_ISSUER_URL=https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud
 KEYCARD_ZONE_URL=https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud
 KEYCARD_CLIENT_ID=<from console>
 KEYCARD_CLIENT_SECRET=<from console>
