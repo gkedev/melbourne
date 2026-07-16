@@ -11,6 +11,11 @@
     "demo": "tsx src/agent/index.ts"
   },
   "dependencies": {
+    "@aauth/local-keys": "^1.2.0",
+    "@aauth/mcp-agent": "^1.3.0",
+    "@aauth/mcp-server": "^1.0.0",
+    "@keycardai/mcp": "^0.11.1",
+    "@keycardai/oauth": "^0.20.0",
     "@modelcontextprotocol/sdk": "^1.12.1",
     "jose": "^6.0.11",
     "uuid": "^11.1.0",
