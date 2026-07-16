@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Court Ready — Agentic Commerce Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08090a;--bg-el:#101113;--bg-hov:#16181c;
+  --bdr:#1f2126;--bdr-lt:#2a2d35;
+  --txt:#e6e7ea;--txt-m:#8a8f98;--txt-d:#555960;
+  --accent:#5e6ad2;--accent-g:rgba(94,106,210,.25);
+  --ok:#4cb782;--ok-g:rgba(76,183,130,.2);
+  --warn:#f2c94c;--warn-g:rgba(242,201,76,.15);
+  --err:#eb5757;--err-g:rgba(235,87,87,.15);
+  --agent:#22d3ee;--agent-g:rgba(34,211,238,.15);
+  --mcp:#4cb782;--mcp-g:rgba(76,183,130,.15);
+  --aauth:#f2c94c;--aauth-g:rgba(242,201,76,.12);
+  --keycard:#c084fc;--keycard-g:rgba(192,132,252,.15);
+  --kyapay:#eb5757;--kyapay-g:rgba(235,87,87,.12);
+  --r:10px;--rs:6px;--rl:14px;
+  --t:180ms ease;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --mono:'JetBrains Mono','Fira Code',monospace;
+}
+html{font-size:15px}
+body{font-family:var(--font);background:var(--bg);color:var(--txt);line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:100vh}
+.panel{padding:32px 36px;overflow-y:auto;max-height:100vh}
+.panel-left{border-right:1px solid var(--bdr)}
+.panel-right{background:linear-gradient(180deg,#0a0b0d 0%,var(--bg) 100%)}
+.header{margin-bottom:32px}
+.header-title{font-size:2rem;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:12px}
+.header-sub{font-size:.9rem;color:var(--txt-m);margin-top:4px;font-weight:400;letter-spacing:.02em}
+.header-badge{display:inline-block;background:var(--accent);color:#fff;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-left:12px;vertical-align:middle}
+.section-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-m);margin-bottom:14px}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:32px}
+.product-card{background:var(--bg-el);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;transition:border-color var(--t),transform var(--t),box-shadow var(--t);cursor:default;display:flex;flex-direction:column}
+.product-card:hover{border-color:var(--bdr-lt);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.product-brand{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:4px}
+.product-name{font-size:.88rem;font-weight:600;color:var(--txt);margin-bottom:8px;line-height:1.3;flex:1}
+.product-price{font-size:1.1rem;font-weight:700;color:var(--txt);margin-bottom:12px;font-family:var(--mono)}
+.btn-add{width:100%;padding:8px 0;border:1px solid var(--bdr-lt);border-radius:var(--rs);background:transparent;color:var(--txt);font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;transition:all var(--t);letter-spacing:.02em}
+.btn-add:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-add:active{transform:scale(.97)}
+.btn-add.added{background:var(--ok);border-color:var(--ok);color:#fff}
+.cart{background:var(--bg-el);border:1px solid var(--bdr);border-radius:var(--rl);padding:20px 24px}
+.cart-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.cart-title{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.cart-cnt{background:var(--accent);color:#fff;font-size:.7rem;font-weight:700;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+.cart-empty{color:var(--txt-d);font-size:.85rem;text-align:center;padding:24px 0}
+.cart-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.cart-item:last-child{border-bottom:none}
+.ci-info{flex:1}
+.ci-name{font-size:.82rem;font-weight:500}
+.ci-brand{font-size:.7rem;color:var(--txt-m)}
+.ci-ctrls{display:flex;align-items:center;gap:8px}
+.qty-btn{width:24px;height:24px;border-radius:4px;border:1px solid var(--bdr-lt);background:transparent;color:var(--txt-m);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--t);font-family:var(--font)}
+.qty-btn:hover{border-color:var(--txt-m);color:var(--txt)}
+.ci-qty{font-size:.82rem;font-weight:600;font-family:var(--mono);min-width:20px;text-align:center}
+.ci-price{font-size:.88rem;font-weight:600;font-family:var(--mono);margin-left:16px;min-width:60px;text-align:right}
+.cart-foot{margin-top:16px;padding-top:16px;border-top:1px solid var(--bdr-lt)}
+.cart-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.ct-label{font-size:.85rem;font-weight:600;color:var(--txt-m);text-transform:uppercase;letter-spacing:.06em}
+.ct-val{font-size:1.4rem;font-weight:800;font-family:var(--mono)}
+.btn-checkout{width:100%;padding:14px 0;border:none;border-radius:var(--r);background:linear-gradient(135deg,var(--accent) 0%,#7c6ef0 100%);color:#fff;font-family:var(--font);font-size:.9rem;font-weight:700;cursor:pointer;transition:all var(--t);letter-spacing:.02em;position:relative;overflow:hidden}
+.btn-checkout:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--accent-g)}
+.btn-checkout:active{transform:translateY(0)}
+.btn-checkout:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-checkout.running{background:var(--bg-hov);border:1px solid var(--bdr-lt);color:var(--txt-m)}
+.flow-hdr{margin-bottom:24px}
+.flow-title{font-size:1.15rem;font-weight:700;margin-bottom:4px}
+.flow-sub{font-size:.8rem;color:var(--txt-m)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:28px;padding:14px 18px;background:var(--bg-el);border:1px solid var(--bdr);border-radius:var(--r)}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:.75rem;font-weight:500;color:var(--txt-m)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.flow-tl{position:relative;padding-left:28px}
+.flow-tl::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--bdr);border-radius:1px}
+.flow-step{position:relative;margin-bottom:14px;opacity:0;transform:translateY(12px) translateX(-6px);transition:opacity 400ms ease,transform 400ms ease}
+.flow-step.visible{opacity:1;transform:translateY(0) translateX(0)}
+.flow-step.pending{opacity:.25;transform:translateY(0) translateX(0)}
+.flow-dot{position:absolute;left:-24px;top:16px;width:12px;height:12px;border-radius:50%;border:2px solid var(--bdr);background:var(--bg);transition:all 400ms ease;z-index:1}
+.flow-step.active .flow-dot{border-color:var(--step-c);background:var(--step-c);box-shadow:0 0 12px var(--step-c)}
+.flow-step.done .flow-dot{border-color:var(--step-c);background:var(--step-c);box-shadow:none}
+.flow-card{background:var(--bg-el);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 18px;transition:all 400ms ease;position:relative;overflow:hidden}
+.flow-step.active .flow-card{border-color:var(--step-c);box-shadow:0 0 24px var(--step-g)}
+.flow-step.done .flow-card{border-color:var(--bdr-lt)}
+.fc-hdr{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.fc-icon{font-size:1rem;flex-shrink:0}
+.fc-party{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--step-c)}
+.fc-status{margin-left:auto;font-size:.7rem;font-weight:600;display:flex;align-items:center;gap:4px;color:var(--step-c)}
+.fc-desc{font-size:.82rem;color:var(--txt);font-weight:500;margin-top:2px}
+.fc-detail{margin-top:8px;padding:8px 10px;background:rgba(0,0,0,.3);border-radius:var(--rs);font-family:var(--mono);font-size:.68rem;color:var(--txt-m);line-height:1.6;white-space:pre-wrap;word-break:break-all}
+.fc-detail .hl{color:var(--txt);font-weight:500}
+.flow-step.active .flow-card::after{content:'';position:absolute;inset:0;border-radius:var(--r);animation:pulse-bdr 1.5s ease-in-out infinite;pointer-events:none}
+@keyframes pulse-bdr{0%,100%{box-shadow:inset 0 0 0 1px transparent}50%{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow-step.final.done .flow-card{background:linear-gradient(135deg,rgba(76,183,130,.1) 0%,rgba(94,106,210,.08) 100%);border-color:var(--ok)}
+.tagline{margin-top:28px;text-align:center;padding:20px;opacity:0;transition:opacity 600ms ease}
+.tagline.visible{opacity:1}
+.tagline-main{font-size:.85rem;color:var(--txt-m);font-weight:400}
+.tagline-main strong{color:var(--txt);font-weight:700}
+.tagline-emp{font-size:1.1rem;font-weight:700;color:var(--accent);margin-top:6px}
+.btn-reset{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:1px solid var(--bdr-lt);border-radius:var(--rs);background:transparent;color:var(--txt-m);font-family:var(--font);font-size:.78rem;font-weight:500;cursor:pointer;transition:all var(--t);margin-top:16px}
+.btn-reset:hover{border-color:var(--err);color:var(--err)}
+.flow-idle{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px;text-align:center}
+.flow-idle-icon{font-size:3rem;margin-bottom:16px;opacity:.6}
+.flow-idle-txt{font-size:.95rem;color:var(--txt-d);font-weight:400;line-height:1.6}
+.flow-idle-txt strong{color:var(--txt-m);font-weight:600}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr-lt);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--txt-d)}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.shimmer{background:linear-gradient(90deg,var(--ok) 0%,#7de8b8 50%,var(--ok) 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 2s linear infinite}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="panel panel-left">
+    <div class="header">
+      <div class="header-title">🎾 Court Ready<span class="header-badge">Demo</span></div>
+      <div class="header-sub">4-Party Agentic Commerce with AAuth</div>
+    </div>
+    <div class="section-label">Catalog</div>
+    <div class="product-grid" id="productGrid"></div>
+    <div class="cart">
+      <div class="cart-hdr">
+        <div class="cart-title">🛒 Cart <span class="cart-cnt" id="cartCnt" style="display:none">0</span></div>
+      </div>
+      <div id="cartBody"><div class="cart-empty">Add items to get started</div></div>
+      <div class="cart-foot" id="cartFoot" style="display:none">
+        <div class="cart-total"><span class="ct-label">Total</span><span class="ct-val" id="cartTotal">$0.00</span></div>
+        <button class="btn-checkout" id="btnCheckout" onclick="startCheckout()">⚡ Checkout via Agent</button>
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-right">
+    <div class="flow-hdr">
+      <div class="flow-title">AAuth Protocol Flow</div>
+      <div class="flow-sub">Watch the 4-party authorization in real-time</div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--agent)"></div>Agent</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--mcp)"></div>MCP Server</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--aauth)"></div>AAuth.dev</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--keycard)"></div>Keycard</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--kyapay)"></div>KYA-PAY</div>
+    </div>
+    <div id="flowContainer">
+      <div class="flow-idle" id="flowIdle">
+        <div class="flow-idle-icon">🔒</div>
+        <div class="flow-idle-txt"><strong>Add items and click Checkout</strong><br>to see the AAuth protocol flow animate</div>
+      </div>
+    </div>
+    <div class="tagline" id="tagline">
+      <div class="tagline-main">Traditional checkout: <strong>5–7 human steps</strong>.</div>
+      <div class="tagline-emp">This flow: 1 agent call.</div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+"use strict";
+
+var PRODUCTS=[
+{sku:'TB-WILSON-US-3',name:'US Open Extra Duty (3-Pack)',brand:'Wilson',price:5.99},
+{sku:'TB-WILSON-CHAMP-4',name:'Championship (4-Pack)',brand:'Wilson',price:4.49},
+{sku:'TB-PENN-CHAMP-3',name:'Championship (3-Pack)',brand:'Penn',price:3.99},
+{sku:'TB-PENN-TOUR-3',name:'Tour Extra Duty (3-Pack)',brand:'Penn',price:6.49},
+{sku:'TB-DUNLOP-AO-3',name:'Australian Open (3-Pack)',brand:'Dunlop',price:7.99},
+{sku:'TB-DUNLOP-FORT-4',name:'Fort All Court (4-Pack)',brand:'Dunlop',price:8.99},
+{sku:'TB-BABOLAT-GOLD-3',name:'Gold All Court (3-Pack)',brand:'Babolat',price:5.49},
+{sku:'TB-BABOLAT-RG-3',name:'French Open Clay (3-Pack)',brand:'Babolat',price:7.49},
+{sku:'TB-HEAD-TOUR-3',name:'Tour (3-Pack)',brand:'Head',price:6.99},
+{sku:'TB-HEAD-PADEL-3',name:'Padel Pro (3-Pack)',brand:'Head',price:5.99},
+{sku:'TB-WILSON-TRINITI-3',name:'Triniti (3-Pack)',brand:'Wilson',price:9.99},
+{sku:'TB-PENN-PRESSURELESS-12',name:'Pressureless (12-Pack)',brand:'Penn',price:19.99}
+];
+
+var cart = [];
+var flowRunning = false;
+
+function $(id) { return document.getElementById(id); }
+function fmt(n) { return '$' + n.toFixed(2); }
+function rnd(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+function hex(len) { var c = '0123456789abcdef', s = ''; for (var i = 0; i < len; i++) s += c[rnd(0, 15)]; return s; }
+function delay(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+/* ===== RENDER PRODUCTS ===== */
+function renderProducts() {
+  var g = $('productGrid');
+  var h = '';
+  for (var i = 0; i < PRODUCTS.length; i++) {
+    var p = PRODUCTS[i];
+    h += '<div class="product-card">'
+      + '<div class="product-brand">' + p.brand + '</div>'
+      + '<div class="product-name">' + p.name + '</div>'
+      + '<div class="product-price">' + fmt(p.price) + '</div>'
+      + '<button class="btn-add" data-sku="' + p.sku + '">Add to Cart</button>'
+      + '</div>';
+  }
+  g.innerHTML = h;
+  g.addEventListener('click', function(e) {
+    var btn = e.target.closest('.btn-add');
+    if (!btn) return;
+    addToCart(btn.getAttribute('data-sku'));
+  });
+}
+
+/* ===== CART ===== */
+function addToCart(sku) {
+  if (flowRunning) return;
+  var p = null;
+  for (var i = 0; i < PRODUCTS.length; i++) { if (PRODUCTS[i].sku === sku) { p = PRODUCTS[i]; break; } }
+  if (!p) return;
+  var e = null;
+  for (var j = 0; j < cart.length; j++) { if (cart[j].sku === sku) { e = cart[j]; break; } }
+  if (e) { e.qty++; } else { cart.push({ sku: p.sku, name: p.name, brand: p.brand, price: p.price, qty: 1 }); }
+  var btns = document.querySelectorAll('.btn-add[data-sku="' + sku + '"]');
+  btns.forEach(function(btn) {
+    btn.classList.add('added'); btn.textContent = '\u2713 Added';
+    setTimeout(function() { btn.classList.remove('added'); btn.textContent = 'Add to Cart'; }, 600);
+  });
+  renderCart();
+}
+window.addToCart = addToCart;
+
+function changeQty(sku, d) {
+  if (flowRunning) return;
+  for (var i = 0; i < cart.length; i++) {
+    if (cart[i].sku === sku) {
+      cart[i].qty += d;
+      if (cart[i].qty <= 0) { cart.splice(i, 1); }
+      break;
+    }
+  }
+  renderCart();
+}
+window.changeQty = changeQty;
+
+function renderCart() {
+  var body = $('cartBody'), foot = $('cartFoot'), cnt = $('cartCnt'), tot = $('cartTotal');
+  var ti = 0, tp = 0;
+  for (var i = 0; i < cart.length; i++) { ti += cart[i].qty; tp += cart[i].price * cart[i].qty; }
+  if (cart.length === 0) {
+    body.innerHTML = '<div class="cart-empty">Add items to get started</div>';
+    foot.style.display = 'none'; cnt.style.display = 'none'; return;
+  }
+  cnt.style.display = 'inline-flex'; cnt.textContent = ti;
+  foot.style.display = 'block'; tot.textContent = fmt(tp);
+  var h = '';
+  for (var j = 0; j < cart.length; j++) {
+    var c = cart[j];
+    h += '<div class="cart-item"><div class="ci-info"><div class="ci-name">' + c.name + '</div>'
+      + '<div class="ci-brand">' + c.brand + '</div></div>'
+      + '<div class="ci-ctrls">'
+      + '<button class="qty-btn" onclick="changeQty(\'' + c.sku + '\',-1)">\u2212</button>'
+      + '<span class="ci-qty">' + c.qty + '</span>'
+      + '<button class="qty-btn" onclick="changeQty(\'' + c.sku + '\',1)">+</button></div>'
+      + '<div class="ci-price">' + fmt(c.price * c.qty) + '</div></div>';
+  }
+  body.innerHTML = h;
+}
+
+/* ===== FLOW STEPS ===== */
+function buildFlowSteps(totalUsd, items) {
+  var skuList = [];
+  for (var i = 0; i < items.length; i++) { skuList.push(items[i].sku); }
+  var orderId = 'CR-' + hex(8).toUpperCase();
+  var missionId = 'msn_' + hex(16);
+  var tokenId = 'tok_' + hex(16);
+  var resToken = 'eyJ' + hex(20) + '...' + hex(8);
+  var authJwt = 'eyJ' + hex(12) + '...' + hex(16);
+  var spendLimit = fmt(Math.ceil(totalUsd) + 5);
+
+  return [
+    { party: 'Agent', icon: '\uD83E\uDD16', color: 'var(--agent)', glow: 'var(--agent-g)',
+      desc: 'Calling checkout_initiate tool\u2026',
+      detail: '<span class="hl">tool:</span> checkout_initiate\n<span class="hl">cart:</span> [' + skuList.join(', ') + ']\n<span class="hl">total:</span> ' + fmt(totalUsd) },
+    { party: 'MCP Server', icon: '\uD83C\uDFEA', color: 'var(--mcp)', glow: 'var(--mcp-g)',
+      desc: '401 \u2014 aa-auth-required',
+      detail: '<span class="hl">status:</span> 401\n<span class="hl">type:</span> aa-auth-required\n<span class="hl">resource_token:</span> ' + resToken + '\n<span class="hl">scopes:</span> ["checkout:complete","payment:charge"]' },
+    { party: 'Agent', icon: '\uD83E\uDD16', color: 'var(--agent)', glow: 'var(--agent-g)',
+      desc: 'Proposing mission to Person Server\u2026',
+      detail: '<span class="hl">mission:</span> "Purchase tennis balls"\n<span class="hl">scope:</span> checkout:complete, payment:charge\n<span class="hl">spending_limit:</span> ' + spendLimit },
+    { party: 'AAuth.dev', icon: '\uD83D\uDEE1\uFE0F', color: 'var(--aauth)', glow: 'var(--aauth-g)',
+      desc: 'Mission approved by user G',
+      detail: '<span class="hl">mission_id:</span> ' + missionId + '\n<span class="hl">status:</span> approved\n<span class="hl">approved_by:</span> person:user-g\n<span class="hl">policy:</span> auto-approve < $50' },
+    { party: 'AAuth.dev \u2192 Keycard', icon: '\uD83D\uDD10', color: 'var(--keycard)', glow: 'var(--keycard-g)',
+      desc: 'Federating resource token to Access Server\u2026',
+      detail: '<span class="hl">federation:</span> person-server \u2192 access-server\n<span class="hl">resource_token:</span> ' + resToken.slice(0, 20) + '\u2026\n<span class="hl">mission_id:</span> ' + missionId },
+    { party: 'Keycard', icon: '\uD83D\uDD10', color: 'var(--keycard)', glow: 'var(--keycard-g)',
+      desc: 'Governance policy enforced \u2713 \u2014 Signing aa-auth+jwt (ES256)',
+      detail: '<span class="hl">governance:</span> PASS\n<span class="hl">checks:</span> scope_allowed, spend_limit, merchant_approved\n<span class="hl">algorithm:</span> ES256\n<span class="hl">token_id:</span> ' + tokenId },
+    { party: 'KYA-PAY', icon: '\uD83D\uDCB3', color: 'var(--kyapay)', glow: 'var(--kyapay-g)',
+      desc: 'Payment claims embedded in auth token',
+      detail: '<span class="hl">max_amount:</span> ' + fmt(totalUsd) + '\n<span class="hl">merchant:</span> court-ready-mcp\n<span class="hl">scopes:</span> ["payment:charge"]\n<span class="hl">mission_id:</span> ' + missionId },
+    { party: 'Agent \u2192 MCP', icon: '\uD83E\uDD16', color: 'var(--agent)', glow: 'var(--agent-g)',
+      desc: 'Presenting auth token to complete checkout\u2026',
+      detail: '<span class="hl">tool:</span> checkout_confirm\n<span class="hl">aa-auth:</span> ' + authJwt + '\n<span class="hl">token_type:</span> aa-auth+jwt' },
+    { party: 'MCP Server', icon: '\uD83C\uDFEA', color: 'var(--mcp)', glow: 'var(--mcp-g)',
+      desc: 'Signature \u2713  Scopes \u2713  KYA-PAY \u2713',
+      detail: '<span class="hl">verify:</span> ES256 signature VALID\n<span class="hl">scopes:</span> checkout:complete \u2713, payment:charge \u2713\n<span class="hl">kya_pay:</span> ' + fmt(totalUsd) + ' \u2264 ' + fmt(totalUsd) + ' \u2713\n<span class="hl">status:</span> AUTHORIZED' },
+    { party: 'ORDER CONFIRMED', icon: '\uD83C\uDF89', color: 'var(--ok)', glow: 'var(--ok-g)',
+      desc: '', isFinal: true,
+      detail: '<span class="hl">order_id:</span> ' + orderId + '\n<span class="hl">items:</span> ' + items.length + ' product(s)\n<span class="hl">total:</span> ' + fmt(totalUsd) + '\n<span class="hl">payment:</span> KYA-PAY authorized \u2713\n<span class="hl">status:</span> confirmed\n<span class="hl">receipt:</span> court-ready.shop/orders/' + orderId }
+  ];
+}
+
+/* ===== RENDER FLOW STEP ===== */
+function renderFlowStep(step, index, state) {
+  var cls = 'flow-step ' + state;
+  if (step.isFinal) cls += ' final';
+  var statusHtml = '';
+  if (state === 'pending') statusHtml = '<span style="color:var(--txt-d)">\u2022 pending</span>';
+  else if (state === 'active') statusHtml = '<span class="spinner"></span> active';
+  else if (state === 'done') statusHtml = '<span>\u2713 done</span>';
+
+  var descHtml = step.isFinal && state === 'done'
+    ? '<div class="fc-desc"><span class="shimmer" style="font-size:1.05rem;font-weight:800;">ORDER CONFIRMED</span></div>'
+    : '<div class="fc-desc">' + step.desc + '</div>';
+
+  return '<div class="' + cls + '" id="step-' + index + '" style="--step-c:' + step.color + ';--step-g:' + step.glow + '">'
+    + '<div class="flow-dot"></div>'
+    + '<div class="flow-card">'
+    + '<div class="fc-hdr">'
+    + '<span class="fc-icon">' + step.icon + '</span>'
+    + '<span class="fc-party">' + step.party + '</span>'
+    + '<span class="fc-status">' + statusHtml + '</span>'
+    + '</div>'
+    + descHtml
+    + '<div class="fc-detail">' + step.detail + '</div>'
+    + '</div></div>';
+}
+
+/* ===== SWAP STEP STATE ===== */
+function setStepState(step, index, state) {
+  var el = $('step-' + index);
+  if (!el) return;
+  var tmp = document.createElement('div');
+  tmp.innerHTML = renderFlowStep(step, index, state);
+  var fresh = tmp.firstChild;
+  el.className = fresh.className + ' visible';
+  el.style.cssText = fresh.style.cssText;
+  el.innerHTML = fresh.innerHTML;
+}
+
+/* ===== ANIMATE FLOW ===== */
+async function animateFlow(steps) {
+  var container = $('flowContainer');
+  // Render all steps as pending
+  var h = '<div class="flow-tl">';
+  for (var i = 0; i < steps.length; i++) {
+    h += renderFlowStep(steps[i], i, 'pending');
+  }
+  h += '</div>';
+  container.innerHTML = h;
+
+  // Fade pending steps in
+  await delay(100);
+  container.querySelectorAll('.flow-step').forEach(function(el) {
+    el.classList.add('visible');
+  });
+
+  // Animate each step: pending -> active -> done
+  for (var j = 0; j < steps.length; j++) {
+    await delay(j === 0 ? 400 : rnd(350, 550));
+
+    setStepState(steps[j], j, 'active');
+    var stepEl = $('step-' + j);
+    if (stepEl) stepEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    await delay(rnd(600, 900));
+
+    setStepState(steps[j], j, 'done');
+  }
+}
+
+/* ===== CONFETTI ===== */
+function launchConfetti() {
+  var colors = ['#22d3ee', '#4cb782', '#f2c94c', '#c084fc', '#5e6ad2', '#eb5757', '#e6e7ea'];
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden';
+  document.body.appendChild(wrap);
+  for (var i = 0; i < 60; i++) {
+    var p = document.createElement('div');
+    p.style.cssText = 'position:absolute;width:' + rnd(6, 10) + 'px;height:' + rnd(6, 10) + 'px;'
+      + 'border-radius:' + (rnd(0, 1) ? '50%' : '2px') + ';'
+      + 'background:' + colors[rnd(0, colors.length - 1)] + ';'
+      + 'left:' + rnd(10, 90) + '%;top:-20px;'
+      + 'animation:confettiFall ' + (rnd(15, 30) / 10) + 's ease-out ' + (rnd(0, 10) / 10) + 's forwards;'
+      + 'opacity:0.9;';
+    wrap.appendChild(p);
+  }
+  // Add keyframes if not present
+  if (!document.getElementById('confettiStyle')) {
+    var style = document.createElement('style');
+    style.id = 'confettiStyle';
+    style.textContent = '@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(' + rnd(360, 1080) + 'deg);opacity:0}}';
+    document.head.appendChild(style);
+  }
+  setTimeout(function() { wrap.remove(); }, 4000);
+}
+
+/* ===== START CHECKOUT ===== */
+async function startCheckout() {
+  if (flowRunning || cart.length === 0) return;
+  flowRunning = true;
+
+  var btn = $('btnCheckout');
+  btn.disabled = true;
+  btn.classList.add('running');
+  btn.textContent = '\u23F3 Agent processing\u2026';
+
+  // Hide idle, show flow
+  var idle = $('flowIdle');
+  if (idle) idle.style.display = 'none';
+  $('tagline').classList.remove('visible');
+
+  var totalUsd = 0;
+  for (var i = 0; i < cart.length; i++) { totalUsd += cart[i].price * cart[i].qty; }
+  totalUsd = Math.round(totalUsd * 100) / 100;
+
+  var steps = buildFlowSteps(totalUsd, cart);
+  await animateFlow(steps);
+
+  // Celebration
+  launchConfetti();
+  $('tagline').classList.add('visible');
+
+  btn.textContent = '\u2713 Order Complete';
+  btn.classList.remove('running');
+
+  // Add reset button
+  var foot = $('cartFoot');
+  if (!document.getElementById('btnReset')) {
+    var resetBtn = document.createElement('button');
+    resetBtn.id = 'btnReset';
+    resetBtn.className = 'btn-reset';
+    resetBtn.innerHTML = '\u21BA Reset Demo';
+    resetBtn.onclick = resetDemo;
+    foot.appendChild(resetBtn);
+  }
+}
+window.startCheckout = startCheckout;
+
+/* ===== RESET ===== */
+function resetDemo() {
+  flowRunning = false;
+  cart = [];
+  renderCart();
+  var btn = $('btnCheckout');
+  btn.disabled = false;
+  btn.classList.remove('running');
+  btn.textContent = '\u26A1 Checkout via Agent';
+  $('tagline').classList.remove('visible');
+  var resetBtn = document.getElementById('btnReset');
+  if (resetBtn) resetBtn.remove();
+  $('flowContainer').innerHTML = '<div class="flow-idle" id="flowIdle">'
+    + '<div class="flow-idle-icon">\uD83D\uDD12</div>'
+    + '<div class="flow-idle-txt"><strong>Add items and click Checkout</strong><br>to see the AAuth protocol flow animate</div></div>';
+}
+window.resetDemo = resetDemo;
+
+/* ===== INIT ===== */
+renderProducts();
+
+})();
+
+</script>
+</body>
+</html>
