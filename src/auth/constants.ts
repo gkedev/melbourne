@@ -23,6 +23,8 @@ export const DEMO_CONFIG = {
   },
   accessServer: {
     url: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud',
+    issuerUrl: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud',
+    redirectUrl: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud/oauth/2/redirect',
     zoneId: 't55y1t1etlnq7ws9cgidzfxm2d',
     name: 'Keycard Access Server',
   },
