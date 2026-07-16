@@ -24,9 +24,20 @@ export const DEMO_CONFIG = {
   accessServer: {
     url: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud',
     issuerUrl: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud',
-    redirectUrl: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud/oauth/2/redirect',
     zoneId: 't55y1t1etlnq7ws9cgidzfxm2d',
     name: 'Keycard Access Server',
+    // OAuth 2.0 endpoints (from .well-known/openid-configuration)
+    oauth: {
+      authorizationEndpoint: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud/oauth/2/authorize',
+      tokenEndpoint: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud/oauth/2/token',
+      redirectUrl: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud/oauth/2/redirect',
+      registrationEndpoint: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud/oauth/2/registration',
+      jwksUri: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud/openidconnect/jwks',
+      userinfoEndpoint: 'https://t55y1t1etlnq7ws9cgidzfxm2d.keycard.cloud/openid/connect/userinfo',
+      // Supported grant types: authorization_code, refresh_token, client_credentials, token-exchange
+      // Token exchange (RFC 8693) is supported — this is how we'll federate
+      grantTypes: ['authorization_code', 'refresh_token', 'client_credentials', 'urn:ietf:params:oauth:grant-type:token-exchange'],
+    },
   },
   kyapay: {
     defaultCurrency: 'USD',
