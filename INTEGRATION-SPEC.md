@@ -209,3 +209,47 @@ USE_REAL_SERVICES=true  # false = fall back to mocks
 - **Consent prompts** — Interactive, user-facing, demo-specific
 - **Cart/catalog data** — Demo data, not a real service
 - **KYA-PAY receipt generation** — Application logic, not protocol
+
+---
+
+## 7. SKYFIRE UPDATE — Real KYA-PAY Integration Available!
+
+**G has an account at app.skyfire.xyz with gkedev@gmail.com**
+
+Skyfire is the company behind KYA-PAY, and they have a **real API** — not just a protocol spec.
+
+### What Skyfire Provides (that we thought was protocol-only):
+- **Real token generation API**: `POST https://api.skyfire.xyz/api/v1/tokens`
+- **Three token types**: `kya` (identity), `pay` (payment), `kya-pay` (combined)
+- **Pre-funded buyer wallet** (created automatically on signup)
+- **Token charging API** (sellers charge pay tokens after delivering goods/services)
+- **Buyer Agent + API keys** per user
+- **Playground** for testing token flows
+- **JWKS verification** for sellers to validate tokens
+
+### What this means for Court Ready:
+KYA-PAY is NO LONGER protocol-only. We can:
+1. Generate real `kya-pay` tokens via the Skyfire API
+2. Have the MCP server (as "seller") verify and charge the token
+3. Real wallet balances, real settlement
+
+### What G needs to do:
+1. Log into app.skyfire.xyz with gkedev@gmail.com
+2. Create a **Buyer API Key** in the dashboard
+3. Share the API key — we'll use it in the `skyfire-api-key` header
+
+### API Pattern:
+```bash
+# Create a kya-pay token (buyer side)
+curl -X POST https://api.skyfire.xyz/api/v1/tokens \
+  -H "skyfire-api-key: <BUYER_API_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{"type": "kya-pay", "sellerServiceId": "<SERVICE_ID>", "amount": 7.98}'
+
+# Token is a signed JWT — pass to seller in HTTP header or body
+# Seller verifies via JWKS and charges via Skyfire Charge Token API
+```
+
+### Updated Priority:
+- **Priority 3 is now BUILDABLE** — upgrade from "spec-compliant local tokens" to real Skyfire API integration
+- Need: Buyer API Key + Seller Service ID (for the Court Ready Tennis Shop)
