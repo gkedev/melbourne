@@ -1,0 +1,426 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Court Ready Tennis Shop — MCP Seller Service",
+    "description": "AI-native tennis ball marketplace. Exposes 7 MCP tools for agent-driven browsing, cart management, and checkout with AAuth + KYA-PAY payment authorization. Designed for the Skyfire agentic commerce ecosystem.",
+    "version": "0.1.0",
+    "contact": {
+      "name": "Court Ready",
+      "email": "gkedev@gmail.com",
+      "url": "https://courtready.store"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://courtready.store/api",
+      "description": "Production MCP endpoint"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Catalog",
+      "description": "Browse and search tennis ball products. No authentication required."
+    },
+    {
+      "name": "Cart",
+      "description": "Manage the agent's shopping cart. Requires AAuth identity."
+    },
+    {
+      "name": "Checkout",
+      "description": "Initiate and confirm purchases. Requires AAuth + KYA-PAY claims."
+    }
+  ],
+  "paths": {
+    "/tools/catalog_search": {
+      "post": {
+        "operationId": "catalog_search",
+        "summary": "Search tennis ball catalog",
+        "description": "Search the tennis ball catalog by query text, maximum price, or minimum stock quantity. Returns matching products with full details. No authentication required.",
+        "tags": ["Catalog"],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search by name, brand, or description",
+                    "example": "Wilson hard court"
+                  },
+                  "maxPrice": {
+                    "type": "number",
+                    "description": "Maximum price in USD",
+                    "example": 10.00
+                  },
+                  "minQuantity": {
+                    "type": "integer",
+                    "description": "Minimum stock quantity",
+                    "example": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Matching products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Product" }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "description": "Number of matching products"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/catalog_product": {
+      "post": {
+        "operationId": "catalog_product",
+        "summary": "Get product details by SKU",
+        "description": "Retrieve full details for a single product by its SKU identifier.",
+        "tags": ["Catalog"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["sku"],
+                "properties": {
+                  "sku": {
+                    "type": "string",
+                    "description": "Product SKU",
+                    "example": "TB-PENN-CHAMP-3"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        }
+      }
+    },
+    "/tools/cart_add": {
+      "post": {
+        "operationId": "cart_add",
+        "summary": "Add product to cart",
+        "description": "Add a product to the agent's shopping cart by SKU. Requires AAuth agent identity.",
+        "tags": ["Cart"],
+        "security": [{ "AAuthBearer": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["sku"],
+                "properties": {
+                  "sku": {
+                    "type": "string",
+                    "description": "Product SKU to add",
+                    "example": "TB-WILSON-US-3"
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "description": "Quantity to add",
+                    "default": 1,
+                    "minimum": 1,
+                    "example": 2
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Cart" }
+              }
+            }
+          },
+          "401": {
+            "description": "AAuth identity required",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthChallenge" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/cart_view": {
+      "post": {
+        "operationId": "cart_view",
+        "summary": "View current cart",
+        "description": "View the agent's current shopping cart contents and total.",
+        "tags": ["Cart"],
+        "security": [{ "AAuthBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Current cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Cart" }
+              }
+            }
+          },
+          "401": {
+            "description": "AAuth identity required"
+          }
+        }
+      }
+    },
+    "/tools/cart_remove": {
+      "post": {
+        "operationId": "cart_remove",
+        "summary": "Remove product from cart",
+        "description": "Remove a product from the cart by SKU.",
+        "tags": ["Cart"],
+        "security": [{ "AAuthBearer": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["sku"],
+                "properties": {
+                  "sku": {
+                    "type": "string",
+                    "description": "Product SKU to remove",
+                    "example": "TB-PENN-CHAMP-3"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Cart" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/checkout_initiate": {
+      "post": {
+        "operationId": "checkout_initiate",
+        "summary": "Initiate checkout",
+        "description": "Start the checkout process. Returns a 401 AAuth challenge with a resource token that the agent must present to the Person Server → Access Server chain to obtain an auth token with KYA-PAY payment claims.",
+        "tags": ["Checkout"],
+        "security": [{ "AAuthBearer": [] }],
+        "responses": {
+          "401": {
+            "description": "AAuth challenge with resource token",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CheckoutChallenge" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/checkout_confirm": {
+      "post": {
+        "operationId": "checkout_confirm",
+        "summary": "Confirm checkout with KYA-PAY",
+        "description": "Confirm the purchase by presenting a signed AAuth auth token containing KYA-PAY payment claims. The token must include sufficient spending authorization for the cart total. On success, an order is created and the KYA-PAY token is charged via Skyfire.",
+        "tags": ["Checkout"],
+        "security": [{ "AAuthBearer": [], "KyaPayToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["authTokenJson"],
+                "properties": {
+                  "authTokenJson": {
+                    "type": "string",
+                    "description": "JSON-serialized AuthToken with KYA-PAY claims (issued by Access Server / Keycard)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order confirmed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or insufficient KYA-PAY authorization"
+          },
+          "401": {
+            "description": "Auth token missing or invalid"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "AAuthBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "aa-auth+jwt",
+        "description": "AAuth auth token (JWT) issued by the Access Server (Keycard) after Person Server federation."
+      },
+      "KyaPayToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-KyaPay-Token",
+        "description": "KYA-PAY payment token for purchase authorization (embedded in auth token claims)."
+      }
+    },
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "sku": { "type": "string", "example": "TB-WILSON-US-3" },
+          "name": { "type": "string", "example": "US Open Extra Duty Tennis Balls (3-Pack)" },
+          "brand": { "type": "string", "example": "Wilson" },
+          "description": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": ["competition", "recreational", "premium", "practice", "specialty"]
+          },
+          "priceUsd": { "type": "number", "example": 5.99 },
+          "currency": { "type": "string", "example": "USD" },
+          "quantityInStock": { "type": "integer", "example": 500 },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["hard-court", "extra-duty", "tournament"]
+          }
+        }
+      },
+      "CartItem": {
+        "type": "object",
+        "properties": {
+          "product": { "$ref": "#/components/schemas/Product" },
+          "quantity": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "Cart": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "agentId": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CartItem" }
+          },
+          "totalUsd": { "type": "number", "example": 11.98 },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AuthChallenge": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "integer", "example": 401 },
+          "type": { "type": "string", "example": "aa-auth-required" },
+          "resourceToken": { "$ref": "#/components/schemas/ResourceToken" },
+          "message": { "type": "string" },
+          "requiredScopes": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["checkout:initiate", "checkout:confirm"]
+          }
+        }
+      },
+      "CheckoutChallenge": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "integer", "example": 401 },
+          "type": { "type": "string", "enum": ["aa-auth-required"] },
+          "resourceToken": { "$ref": "#/components/schemas/ResourceToken" },
+          "message": { "type": "string", "example": "Checkout requires AAuth authorization with KYA-PAY claims" },
+          "requiredScopes": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "ResourceToken": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string", "description": "Signed JWT (aa-resource+jwt)" },
+          "mcpServerId": { "type": "string" },
+          "scope": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "issuedAt": { "type": "string", "format": "date-time" },
+          "expiresAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "orderId": { "type": "string" },
+          "agentId": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CartItem" }
+          },
+          "totalUsd": { "type": "number" },
+          "currency": { "type": "string", "example": "USD" },
+          "missionId": { "type": "string" },
+          "kyaPayAuthorized": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "status": {
+            "type": "string",
+            "enum": ["confirmed", "processing", "shipped", "delivered", "cancelled"]
+          }
+        }
+      }
+    }
+  }
+}
